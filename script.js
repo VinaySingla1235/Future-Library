@@ -1,24 +1,49 @@
 console.log("This is index.js");
+
+let TableBody=document.getElementById("tableBody");
+displayTable();
 //constructor
-let count = 1;
 function Book(name, author, type) {
   this.name = name;
   this.author = author;
   this.type = type;
+}
+function displayTable(){
+    let dispString="";
+    let countVar=localStorage.getItem('count');
+    if(countVar==null){
+      return;
+    }
+    for(let i=1;i<=countVar;i++){
+      let uiString=localStorage.getItem(`${i}`);
+      if(uiString!=null){
+        dispString=dispString+uiString;
+      }
+    }
+    TableBody.innerHTML=dispString;
 }
 //Display Constructor
 function Display() {}
 //Add methods to display prototype
 Display.prototype.add = function (book) {
   console.log("added");
-  let tableBody = document.getElementById("tableBody");
-  let uiString = `<tr>
-    <th scope="row">${count}</th>
+  //let storage=localStorage.getItem('tableStorage');
+  let countVar=localStorage.getItem('count');
+  if(countVar==null){
+    countVar='1';
+  }
+  countVar=parseInt(countVar);
+  let uiString =`<tr id='${countVar}'>
     <td>${book.name}</td>
     <td>${book.author}</td>
     <td>${book.type}</td>
+    <td><button class="btn btn-danger" onclick="remove('${countVar}')">Remove</button></td>
   </tr>`;
-  tableBody.innerHTML += uiString;
+  localStorage.setItem(`${countVar}`,uiString);
+  countVar++;
+  localStorage.setItem('count',`${countVar}`);
+  //TableBody.innerHTML = uiString;
+  displayTable();
 };
 Display.prototype.clear = function () {
   let libraryForm = document.getElementById("libraryForm");
@@ -44,6 +69,17 @@ Display.prototype.show = function (type, message) {
       pos.innerHTML="";
   },2000)
 };
+function clearTable(){
+  console.log("clear function is called");
+  localStorage.clear();
+  TableBody.innerHTML="";
+
+}
+function remove(id){
+  console.log("remove function is called");
+  localStorage.removeItem(id);
+  displayTable();
+}
 let libraryForm = document.getElementById("libraryForm");
 console.log(libraryForm);
 libraryForm.addEventListener("submit", libraryFormSubmit);
@@ -71,7 +107,8 @@ function libraryFormSubmit(e) {
     display.add(bookN);
     display.clear();
     display.show("success", "Your book has been successfully added");
-    count++;
+    //count++;
+    //displayTable();
   } else {
     display.show("danger", "Sorry you cannot add this book");
   }
